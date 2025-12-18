@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多关卡迷宫游戏</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="pages-style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- 开始界面 -->
+        <div id="start-screen" class="screen active">
+            <h1>迷宫大冒险</h1>
+            <button id="start-button">开始游戏</button>
+        </div>
+
+        <!-- 关卡选择界面 -->
+        <div id="level-select-screen" class="screen">
+            <h2>选择关卡</h2>
+            <div class="level-buttons">
+                <div class="custom-levels-section">
+                    <h3>我的关卡</h3>
+                    <div id="custom-levels-list" class="custom-levels-list">
+                        <!-- 自定义关卡按钮将在这里动态生成 -->
+                    </div>
+                </div>
+                <div class="edit-level-controls">
+                    <select id="level-select" class="border-2 border-blue-400 rounded-lg px-4 py-2 text-lg">
+                        <option value="">-- 选择已保存的关卡 --</option>
+                    </select>
+                    <button id="edit-level-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full text-lg transition-all duration-300 transform hover:scale-105">
+                        编辑关卡
+                    </button>
+                </div>
+                <button id="custom-level-button">创建新关卡</button>
+            </div>
+            <button id="back-to-start-button">返回</button>
+        </div>
+
+        <!-- 游戏主界面 -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="level-info">
+                    <span>关卡: <span id="current-level">1</span></span>
+                </div>
+                <div class="player-stats">
+                    <div class="life-container">
+                        <span>生命值:</span>
+                        <div id="lives"></div>
+                    </div>
+                    <div class="inventory-container">
+                        <span>道具:</span>
+                        <div id="inventory"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="maze-container"></div>
+            <div class="game-controls">
+                <button id="pause-button">暂停</button>
+                <button id="restart-button">重新开始</button>
+            </div>
+        </div>
+
+        <!-- 编辑模式界面 -->
+        <div id="edit-screen" class="screen">
+            <h2>编辑迷宫</h2>
+            <div class="edit-tools">
+                <div class="tool-buttons">
+                    <button class="tool-button active" data-tool="wall">
+                        <span class="tool-icon wall-icon"></span>
+                        <span class="tool-text">墙</span>
+                    </button>
+                    <button class="tool-button" data-tool="bomb">
+                        <span class="tool-icon bomb-icon"></span>
+                        <span class="tool-text">炸弹</span>
+                    </button>
+                    <button class="tool-button" data-tool="radiation">
+                        <span class="tool-icon radiation-icon"></span>
+                        <span class="tool-text">辐射</span>
+                    </button>
+                    <button class="tool-button" data-tool="manhole">
+                        <span class="tool-icon manhole-icon"></span>
+                        <span class="tool-text">井盖</span>
+                    </button>
+                    <button class="tool-button" data-tool="elevator">
+                        <span class="tool-icon elevator-icon"></span>
+                        <span class="tool-text">电梯</span>
+                    </button>
+
+                    <button class="tool-button" data-tool="train">
+                        <span class="tool-icon train-icon"></span>
+                        <span class="tool-text">火车</span>
+                    </button>
+                    <button class="tool-button" data-tool="pacman">
+                        <span class="tool-icon pacman-icon"></span>
+                        <span class="tool-text">食人鬼</span>
+                    </button>
+                    <button class="tool-button" data-tool="lollipop">
+                        <span class="tool-icon lollipop-icon"></span>
+                        <span class="tool-text">棒棒糖</span>
+                    </button>
+                    <button class="tool-button" data-tool="map">
+                        <span class="tool-icon map-icon"></span>
+                        <span class="tool-text">地图</span>
+                    </button>
+                    <button class="tool-button" data-tool="sword">
+                        <span class="tool-icon sword-icon"></span>
+                        <span class="tool-text">宝剑</span>
+                    </button>
+                    <button class="tool-button" data-tool="chest">
+                        <span class="tool-icon chest-icon"></span>
+                        <span class="tool-text">宝箱</span>
+                    </button>
+                    <button class="tool-button" data-tool="eraser">
+                        <span class="tool-icon eraser-icon"></span>
+                        <span class="tool-text">橡皮</span>
+                    </button>
+                </div>
+                <div class="edit-actions">
+                    <button id="set-start-button">设置起点</button>
+                    <button id="set-end-button">设置终点</button>
+                    <button id="clear-button">清空</button>
+                    <button id="undo-button">返回</button>
+                    <button id="redo-button">重做</button>
+                </div>
+            </div>
+            <div id="edit-maze-container"></div>
+            <div class="edit-save-controls">
+                <div class="save-level-controls">
+                    <input type="text" id="level-name-input" placeholder="输入关卡名称" maxlength="20">
+                    <div class="save-level-controls-row">
+                        <select id="level-slot-select" class="level-slot-select">
+                            <option value="new">创建新关卡</option>
+                            <!-- 动态生成已有的关卡选项 -->
+                        </select>
+                        <span id="new-level-number" class="new-level-number" style="display: none;">新关卡编号: <span id="next-level-number">1</span></span>
+                    </div>
+                </div>
+                <div class="save-exit-buttons">
+                    <button id="save-button">保存</button>
+                    <button id="exit-edit-button">退出</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 暂停界面 -->
+        <div id="pause-screen" class="screen">
+            <h2>游戏暂停</h2>
+            <button id="resume-button">继续</button>
+            <button id="exit-to-levels-button">返回关卡选择</button>
+        </div>
+
+        <!-- 游戏结果界面 -->
+        <div id="result-screen" class="screen">
+            <h2 id="result-title"></h2>
+            <p id="result-message"></p>
+            <div class="result-buttons">
+                <button id="restart-level-button">重新开始</button>
+                <button id="next-level-button" style="display: none;">下一关</button>
+                <button id="back-to-levels-result-button">返回关卡选择</button>
+            </div>
+        </div>
+
+        <!-- 分享模态框 -->
+        <div id="share-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h3>分享关卡</h3>
+                <p>复制下面的链接分享你的关卡：</p>
+                <div class="share-link-container">
+                    <input type="text" id="share-link" readonly>
+                    <button id="copy-link-button">复制</button>
+                </div>
+                <p id="copy-success" class="copy-success">链接已复制到剪贴板！</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
