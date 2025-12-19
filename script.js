@@ -207,6 +207,9 @@ class MazeGame {
                     break;
             }
         });
+
+        // 圆盘方向触控控制
+        this.setupTouchControl();
     }
 
     showScreen(screenId) {
@@ -980,6 +983,91 @@ class MazeGame {
             this.updatePacmen();
             this.checkCollisions();
         }, 500);
+    }
+
+    setupTouchControl() {
+        const touchCircle = document.querySelector('.touch-circle');
+        const touchKnob = document.querySelector('.touch-knob');
+        if (!touchCircle || !touchKnob) return;
+
+        let isTouching = false;
+        let centerX, centerY;
+
+        const getTouchPosition = (e) => {
+            const rect = touchCircle.getBoundingClientRect();
+            const touch = e.touches[0];
+            return {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top
+            };
+        };
+
+        const updateKnobPosition = (pos) => {
+            const maxDistance = touchCircle.offsetWidth / 2 - touchKnob.offsetWidth / 2;
+            const dx = pos.x - centerX;
+            const dy = pos.y - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const ratio = Math.min(distance / maxDistance, 1);
+
+            const knobX = centerX + (dx / distance) * ratio * maxDistance;
+            const knobY = centerY + (dy / distance) * ratio * maxDistance;
+
+            touchKnob.style.transform = `translate(${knobX - touchKnob.offsetWidth / 2}px, ${knobY - touchKnob.offsetHeight / 2}px)`;
+        };
+
+        const resetKnobPosition = () => {
+            touchKnob.style.transform = 'translate(0, 0)';
+        };
+
+        const determineDirection = (pos) => {
+            const dx = pos.x - centerX;
+            const dy = pos.y - centerY;
+            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+            if (angle >= -45 && angle < 45) {
+                return { dx: 1, dy: 0 }; // 右
+            } else if (angle >= 45 && angle < 135) {
+                return { dx: 0, dy: 1 }; // 下
+            } else if (angle >= 135 || angle < -135) {
+                return { dx: -1, dy: 0 }; // 左
+            } else {
+                return { dx: 0, dy: -1 }; // 上
+            }
+        };
+
+        touchCircle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isTouching = true;
+            const rect = touchCircle.getBoundingClientRect();
+            centerX = rect.width / 2;
+            centerY = rect.height / 2;
+
+            const pos = getTouchPosition(e);
+            updateKnobPosition(pos);
+            
+            if (this.gameState === 'playing') {
+                const direction = determineDirection(pos);
+                this.movePlayer(direction.dx, direction.dy);
+            }
+        }, { passive: false });
+
+        touchCircle.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!isTouching) return;
+
+            const pos = getTouchPosition(e);
+            updateKnobPosition(pos);
+            
+            if (this.gameState === 'playing') {
+                const direction = determineDirection(pos);
+                this.movePlayer(direction.dx, direction.dy);
+            }
+        }, { passive: false });
+
+        touchCircle.addEventListener('touchend', () => {
+            isTouching = false;
+            resetKnobPosition();
+        });
     }
 
 
