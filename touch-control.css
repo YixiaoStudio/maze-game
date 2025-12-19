@@ -1,0 +1,58 @@
+.touch-control {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.touch-circle {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background-color: rgba(78, 205, 196, 0.3);
+    border: 3px solid #4ecdc4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    touch-action: none;
+}
+
+.touch-knob {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #4ecdc4;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s ease;
+    touch-action: none;
+}
+
+/* 响应式设计 */
+@media (min-width: 768px) {
+    .touch-circle {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .touch-knob {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+/* 在桌面设备上隐藏触控控件，但在触摸设备上始终显示 */
+@media (min-width: 1200px) and (hover: hover) {
+    .touch-control {
+        display: none;
+    }
+}
+
+/* 确保在iPad等触摸设备上始终显示触控控件 */
+@media (hover: none) and (pointer: coarse) {
+    .touch-control {
+        display: flex !important;
+    }
+}
